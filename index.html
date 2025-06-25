@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Детская одежда от Букли</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="fontawesome-free/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="fontawesome-free/js/cart.js" defer></script>
+  <style>
+    body {
+      font-family: 'PT Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    
+    /* Header styles */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 30px;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    
+    .logo img {
+      height: auto;
+      max-height: 70px;
+      width: auto;
+    }
+    
+    .nav-menu ul {
+      display: flex;
+      gap: 25px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .nav-link {
+      color: #000;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+    
+    .nav-link:hover {
+      color: #4CAF50;
+    }
+    
+    .search-block {
+      margin-left: auto;
+      min-width: 180px;
+    }
+    
+    .search-form {
+      border: none;
+      outline: none;
+      padding: 5px 8px;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .search-btn {
+      color: #4CAF50;
+      font-size: 16px;
+      margin-left: 6px;
+      text-decoration: none;
+    }
+    
+    .personal-item {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+    
+    .auth-link {
+      color: #000;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
+    
+    /* Main content styles */
+    .main-information {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 50px 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .text-inform h1 {
+      font-size: 42px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .text-inform h1 strong {
+      color: #4CAF50;
+    }
+    
+    .tagline {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    
+    .inform-link {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .inform-btn {
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .inform-btn.read {
+      background: #f5f5f5;
+      color: #333;
+    }
+    
+    .inform-btn.shop {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .inform-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .photo-model img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* Footer styles */
+    .social {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      background: #fff;
+      margin-top: 50px;
+    }
+    
+    .find {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #666;
+    }
+    
+    .connect {
+      margin: 0 0 10px 0;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .social-icon {
+      display: flex;
+      gap: 15px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .social-link {
+      color: #4CAF50;
+      font-size: 20px;
+    }
+    
+    /* Mobile navigation */
+    .mobile-navigation {
+      display: none;
+    }
+    
+    /* Sign in block */
+    .sign-block {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    
+    .sign-block_active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .sign {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+    
+    .exit {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: #666;
+      font-size: 20px;
+    }
+    
+    .sign-head {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .input-data {
+      margin-bottom: 15px;
+    }
+    
+    .input-data input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    
+    .input-btn input {
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .input-btn input:hover {
+      background: #45a049;
+    }
+    
+    .notReg {
+      text-align: center;
+      margin: 20px 0 10px;
+      color: #666;
+    }
+    
+    /* Модальные окна */
+    .cart-modal,
+    .payment-modal,
+    .success-modal,
+    .empty-cart-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .cart-modal-content,
+    .payment-modal-content,
+    .success-modal-content,
+    .empty-cart-modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .cart-modal-close,
+    .payment-modal-close,
+    .success-modal-close,
+    .empty-cart-modal-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    /* Стили для корзины */
+    .cart-items {
+      margin: 20px 0;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .cart-item-info h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+    
+    .cart-item-info p {
+      margin: 5px 0 0;
+      color: #666;
+    }
+    
+    .cart-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .quantity-btn {
+      width: 25px;
+      height: 25px;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+    
+    .remove-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #ff4444;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    
+    .cart-total {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: right;
+      margin: 20px 0;
+    }
+    
+    .checkout-btn {
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .checkout-btn:hover {
+      background: #45a049;
+    }
+    
+    /* Стили для формы оплаты Stripe */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    #card-element {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    
+    #card-errors {
+      color: #ff4444;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+    
+    #submit-payment {
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+    
+    #submit-payment:hover {
+      background: #45a049;
+    }
+    
+    /* Стили для модального окна успешной оплаты */
+    .success-modal-content {
+      text-align: center;
+    }
+    
+    .success-icon {
+      font-size: 50px;
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+    
+    /* Стили для модального окна пустой корзины */
+    .empty-cart-modal-content {
+      text-align: center;
+    }
+    
+    .empty-cart-icon {
+      font-size: 50px;
+      color: #ff9800;
+      margin-bottom: 20px;
+    }
+    
+    /* Уведомления */
+    .cart-feedback {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 1100;
+    }
+    
+    .cart-feedback.show {
+      opacity: 1;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        padding: 10px;
+      }
+      
+      .nav-menu {
+        display: none;
+      }
+      
+      .mobile-navigation {
+        display: block;
+      }
+      
+      .main-information {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 15px;
+      }
+      
+      .inform-link {
+        justify-content: center;
+      }
+      
+      .social {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <img src="images/logotype.png" alt="Логотип Букли" class="logotype"/>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px;flex:1;min-width:0">
+      <div class="nav-menu">
+        <ul class="menu">
+          <li class="nav-item"><a href="slip.html" class="nav-link">Слипы</a></li>
+          <li class="nav-item"><a href="hats.html" class="nav-link">Шапочки</a></li>
+          <li class="nav-item"><a href="kits.html" class="nav-link">Комплекты</a></li>
+          <li class="nav-item"><a href="individual.html" class="nav-link">Индивидуальный пошив</a></li>
+        </ul>
+      </div>
+      <div class="search-block">
+        <div class="searsh">
+          <input type="text" class="search-form" placeholder="Поиск"/>
+          <a href="#" class="search-btn"><i class="fas fa-search"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="personal-item">
+      <div class="login">
+        <a href="#" class="auth-link signIn"><i class="fas fa-user-circle"></i>Войти</a>
+      </div>
+      <div class="car">
+        <a href="#" class="auth-link cart-widget-toggle"><i class="fas fa-shopping-cart"></i>Корзина (<span id="cart-widget-count">0</span>)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Форма входа -->
+  <div class="sign-block">
+    <div class="sign">
+      <a href="#" class="exit"><i class="fas fa-times"></i></a>
+      <h4 class="sign-head">Вход</h4>
+      <div class="input-data"><input type="text" placeholder="введите логин"/></div>
+      <div class="input-data"><input type="password" placeholder="введите пароль"/></div>
+      <div class="input-btn"><input type="submit" value="Войти"/></div>
+      <p class="notReg">Ещё не зарегистрированы?</p>
+      <div class="input-btn notReg-btn"><input type="submit" value="Зарегистрироваться"/></div>
+    </div>
+  </div>
+
+  <!-- Мобильное меню -->
+  <div class="mobile-navigation">
+    <a href="#" class="burger-link"><span></span></a>
+    <div class="mobile-nav">
+      <ul class="mobile-menu">
+        <li class="menu-item"><a href="#" class="menu-link signInMobile">Войти</a></li>
+        <li class="menu-item"><a href="slip.html" class="menu-link">Слипы</a></li>
+        <li class="menu-item"><a href="kits.html" class="menu-link">Комплекты</a></li>
+        <li class="menu-item"><a href="individual.html" class="menu-link">Индивидуальный пошив</a></li>
+        <li class="menu-item"><a href="#" class="menu-link">Отзывы</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Основной контент -->
+  <div class="main-information">
+    <div class="text-inform">
+      <h1 class="animated">Одежда для малышей <strong>от Букли</strong></h1>
+      <p class="tagline">Качественно, быстро, индивидуально!</p>
+      <div class="inform-link">
+        <div class="inform-btn read">С любовью и заботой</div>
+        <div class="inform-btn shop">Оформить заказ</div>
+      </div>
+    </div>
+    <div class="photo-model">
+      <img src="images/model.png" alt="Детская одежда"/>
+    </div>
+  </div>
+
+  <!-- Футер -->
+  <div class="social">
+    <div class="find"><a href="#"><i class="fas fa-map-marker-alt"></i>Ваши заказы отправляются из города Новосибирск</a></div>
+    <div class="social-menu">
+      <h4 class="connect">оставайся на связи</h4>
+      <ul class="social-icon">
+        <li><a href="#" class="social-link"><i class="fab fa-telegram"></i></a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Модальное окно корзины -->
+  <div id="cart-modal" class="cart-modal">
+    <div class="cart-modal-content">
+      <button class="cart-modal-close">&times;</button>
+      <h2>Корзина</h2>
+      <div id="cart-items" class="cart-items">
+        <p class="empty-cart-message">Ваша корзина пуста</p>
+      </div>
+      <div class="cart-total">
+        Итого: <span id="cart-total">0</span> ₽
+      </div>
+      <button id="checkout-btn" class="checkout-btn">Оплатить</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно оплаты Stripe -->
+  <div id="payment-modal" class="payment-modal">
+    <div class="payment-modal-content">
+      <button class="payment-modal-close">&times;</button>
+      <h2>Оплата заказа</h2>
+      <form id="payment-form">
+        <div class="form-group">
+          <label for="cardholder-name">Имя на карте</label>
+          <input type="text" id="cardholder-name" required>
+        </div>
+        <div class="form-group">
+          <label for="card-element">Данные карты</label>
+          <div id="card-element">
+            <!-- Stripe Elements will be inserted here -->
+          </div>
+          <div id="card-errors" role="alert"></div>
+        </div>
+        <button type="submit" id="submit-payment">Оплатить <span id="payment-amount"></span> ₽</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Модальное окно успешной оплаты -->
+  <div id="success-modal" class="success-modal">
+    <div class="success-modal-content">
+      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+      <h2>Спасибо за покупку!</h2>
+      <p>Ваш заказ успешно оплачен.</p>
+      <button class="success-modal-close">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно пустой корзины -->
+  <div id="empty-cart-modal" class="empty-cart-modal">
+    <div class="empty-cart-modal-content">
+      <div class="empty-cart-icon"><i class="fas fa-shopping-cart"></i></div>
+      <h2>Ваша корзина пуста</h2>
+      <p>Пожалуйста, добавьте товары в корзину для оформления заказа.</p>
+      <button class="empty-cart-modal-close">Закрыть</button>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>
+    // Анимации
+    TweenMax.from(".text-inform h1",1,{delay:.4,y:20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".tagline",1,{delay:.7,y:20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".inform-btn",1,{delay:1,y:20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".photo-model",1,{delay:.4,y:20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".logo",1,{delay:2.2,y:-20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".menu",1,{delay:2.4,y:-20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".search-block",1,{delay:2.6,y:-20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".personal-item",1,{delay:2.8,y:-20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".find",1,{delay:3.2,y:20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".connect",1,{delay:3.4,y:20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".social-icon",1,{delay:3.6,y:20,opacity:0,ease:Expo.easeInOut});
+    TweenMax.from(".burger-link",1,{delay:3,y:-20,opacity:0,ease:Expo.easeInOut});
+
+    // Мобильное меню
+    $(document).ready(function(){
+      $(".burger-link").click(function(){
+        $(this).toggleClass("burger-link_active");
+        $(".mobile-nav").toggleClass("nav-active")
+      });
+      $(".signIn").click(function(){
+        $(".sign-block").toggleClass("sign-block_active")
+      });
+      $(".signInMobile").click(function(){
+        $(".sign-block").toggleClass("sign-block_active");
+        $(".mobile-nav").removeClass("nav-active");
+        $(".burger-link").removeClass("burger-link_active")
+      });
+      $(".exit").click(function(){
+        $(".sign-block").removeClass("sign-block_active")
+      });
+      
+      // Инициализация Stripe
+      const stripe = Stripe('pk_test_your_publishable_key_here'); // Замените на ваш публичный ключ Stripe
+      const elements = stripe.elements();
+      const cardElement = elements.create('card');
+      cardElement.mount('#card-element');
+      
+      // Обработка ошибок карты
+      const cardErrors = document.getElementById('card-errors');
+      cardElement.addEventListener('change', function(event) {
+        if (event.error) {
+          cardErrors.textContent = event.error.message;
+        } else {
+          cardErrors.textContent = '';
+        }
+      });
+      
+      // Обработка формы оплаты
+      const paymentForm = document.getElementById('payment-form');
+      paymentForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const {error, paymentMethod} = await stripe.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+          billing_details: {
+            name: document.getElementById('cardholder-name').value
+          }
+        });
+        
+        if (error) {
+          cardErrors.textContent = error.message;
+        } else {
+          // Здесь можно отправить paymentMethod.id на ваш сервер для обработки платежа
+          // В демо-версии просто показываем сообщение об успехе
+          document.getElementById('payment-modal').style.display = 'none';
+          document.getElementById('success-modal').style.display = 'flex';
+          cart.clearCart();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
